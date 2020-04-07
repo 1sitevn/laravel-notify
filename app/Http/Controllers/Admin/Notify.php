@@ -15,6 +15,7 @@ use OneSite\Notify\Events\CreateNotifyRecord;
 use OneSite\Notify\Http\Controllers\Base;
 use OneSite\Notify\Http\Requests\StoreNotifyRequest;
 use OneSite\Notify\Http\Resources\NotificationResource;
+use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Models\Notification;
 use OneSite\Notify\Services\Common\HashID;
 use OneSite\Notify\Services\Common\Paginate;
@@ -25,6 +26,19 @@ use OneSite\Notify\Services\Common\Paginate;
  */
 class Notify extends Base
 {
+
+    /**
+     * @var NotificationResource $notificationResource
+     */
+    private $notificationResource;
+
+    /**
+     * Notify constructor.
+     */
+    public function __construct()
+    {
+        $this->notificationResource = config('notification.class.notification_resource', NotificationResource::class);
+    }
 
     /**
      * @param Request $request
@@ -40,7 +54,7 @@ class Notify extends Base
         $notifications = $notifications->paginate($perPage);
 
         return response()->json([
-            'notifications' => NotificationResource::collection($notifications),
+            'notifications' => $this->notificationResource::collection($notifications),
             'meta_data' => Paginate::getMetaData($notifications)
         ]);
     }
@@ -69,7 +83,7 @@ class Notify extends Base
         $notification = \OneSite\Notify\Models\Notification::query()->create($attributes);
 
         return response()->json([
-            'notification' => new NotificationResource($notification)
+            'notification' => new $this->notificationResource($notification)
         ]);
     }
 
@@ -88,7 +102,7 @@ class Notify extends Base
         }
 
         return response()->json([
-            'notification' => new NotificationResource($notification)
+            'notification' => new $this->notificationResource($notification)
         ]);
     }
 
@@ -129,7 +143,7 @@ class Notify extends Base
         $notification->update($attributes);
 
         return response()->json([
-            'notification' => new NotificationResource($notification)
+            'notification' => new $this->notificationResource($notification)
         ]);
     }
 
@@ -172,7 +186,7 @@ class Notify extends Base
         event(new CreateNotifyRecord($notification));
 
         return response()->json([
-            'notification' => new NotificationResource($notification)
+            'notification' => new $this->notificationResource($notification)
         ]);
     }
 
