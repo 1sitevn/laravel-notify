@@ -9,6 +9,7 @@
 namespace OneSite\Notify\Providers;
 
 
+use App\Services\Common\HashID;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use OneSite\Notify\Console\Commands\Test;
@@ -86,6 +87,10 @@ class AppServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../resources/notify-tests' => resource_path('notify-tests')
         ], 'notify-resources');
+
+        Route::bind('nid', function ($eid) {
+            return HashID::idDecode($eid);
+        });
     }
 
     /**

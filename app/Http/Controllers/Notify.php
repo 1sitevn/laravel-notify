@@ -14,7 +14,10 @@ use OneSite\Notify\Events\CreateNotify;
 use OneSite\Notify\Events\CreateNotifyRecord;
 use OneSite\Notify\Http\Requests\StoreNotifyRequest;
 use OneSite\Notify\Http\Resources\NotificationResource;
+use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Models\Notification;
+use OneSite\Notify\Models\NotificationRecord;
+use OneSite\Notify\Services\Common\Paginate;
 
 /**
  * Class Notify
@@ -24,89 +27,50 @@ class Notify extends Base
 {
 
     /**
-     * @param StoreNotifyRequest $request
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreNotifyRequest $request)
+    public function index(Request $request)
     {
         $user = $request->user();
 
-        $attributes = $request->only([
-            'title',
-            'description',
-            'receiver_type',
-            'receiver_id',
-            'action',
-            'content',
-        ]);
+        $perPage = !empty($request->per_page) ? $request->per_page : 25;
 
-        $attributes['creator_type'] = !empty($request->creator_type) ? $request->creator_type : \OneSite\Notify\Services\Common\Notify::CREATOR_TYPE_USER;
-        $attributes['creator_id'] = $user->id;
+        $notifications = NotificationRecord::query()
+            ->where('user_id', $user->id)
+            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            ->orderBy('created_at', 'desc');
 
-        $notification = event(new CreateNotify($attributes));
+        $notifications = $notifications->paginate($perPage);
 
         return response()->json([
-            'notification' => $notification
+            'notifications' => NotificationUserResource::collection($notifications),
+            'meta_data' => Paginate::getMetaData($notifications)
         ]);
     }
 
     /**
+     * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $notification = Notification::query()->where('id', $id)->first();
+        $user = $request->user();
 
-        if (!$notification instanceof Notification) {
+        $notification = NotificationRecord::query()
+            ->where('user_id', $user->id)
+            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            ->first();
+
+        if (!$notification instanceof NotificationRecord) {
             return response()->json([
                 'error' => 'Notification not found.'
             ]);
         }
 
         return response()->json([
-            'notification' => new NotificationResource($notification)
-        ]);
-    }
-
-    /**
-     * @param StoreNotifyRequest $request
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update(StoreNotifyRequest $request, $id)
-    {
-        $notification = Notification::query()->where('id', $id)->first();
-
-        if (!$notification instanceof Notification) {
-            return response()->json([
-                'error' => 'Notification not found.'
-            ]);
-        }
-
-        if (in_array($notification->status, [
-            \OneSite\Notify\Services\Common\Notify::STATUS_APPROVED,
-            \OneSite\Notify\Services\Common\Notify::STATUS_PROCESSING,
-            \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS
-        ])) {
-            return response()->json([
-                'error' => 'Notification is approved.'
-            ]);
-        }
-
-        $attributes = $request->only([
-            'title',
-            'description',
-            'receiver_type',
-            'receiver_id',
-            'action',
-            'content',
-        ]);
-
-        $notification->update($attributes);
-
-        return response()->json([
-            'notification' => new NotificationResource($notification)
+            'notification' => new NotificationUserResource($notification)
         ]);
     }
 
@@ -116,65 +80,65 @@ class Notify extends Base
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function approve(Request $request, $id)
+    public function read(Request $request, $id)
     {
-        $notification = Notification::query()->where('id', $id)->first();
+        $user = $request->user();
 
-        if (!$notification instanceof Notification) {
+        $notification = NotificationRecord::query()
+            ->where('user_id', $user->id)
+            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            ->first();
+
+        if (!$notification instanceof NotificationRecord) {
             return response()->json([
                 'error' => 'Notification not found.'
             ]);
         }
 
-        if (in_array($notification->status, [
-            \OneSite\Notify\Services\Common\Notify::STATUS_APPROVED,
-            \OneSite\Notify\Services\Common\Notify::STATUS_PROCESSING,
-            \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS
-        ])) {
-            return response()->json([
-                'error' => 'Notification is approved.'
-            ]);
-        }
-
-        $user = $request->user();
-
-        $notification->moderator_id = $user->id;
-        $notification->status = \OneSite\Notify\Services\Common\Notify::STATUS_APPROVED;
-        if (!$notification->save()) {
-            return response()->json([
-                'error' => 'Notification is not approved.'
-            ]);
-        }
-
-        event(new CreateNotifyRecord($notification));
+        $notification->is_read = 1;
+        $notification->save();
 
         return response()->json([
-            'notification' => new NotificationResource($notification)
+            'notification' => new NotificationUserResource($notification)
         ]);
     }
 
     /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function readAll(Request $request)
+    {
+        $user = $request->user();
+
+        $notification = NotificationRecord::query()
+            ->where('user_id', $user->id)
+            ->update([
+                'is_read' => 1
+            ]);
+
+        return response()->json([]);
+    }
+
+
+    /**
+     * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $notification = Notification::query()->where('id', $id)->first();
+        $user = $request->user();
 
-        if (!$notification instanceof Notification) {
+        $notification = NotificationRecord::query()
+            ->where('user_id', $user->id)
+            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            ->first();
+
+        if (!$notification instanceof NotificationRecord) {
             return response()->json([
                 'error' => 'Notification not found.'
-            ]);
-        }
-
-        if (in_array($notification->status, [
-            \OneSite\Notify\Services\Common\Notify::STATUS_APPROVED,
-            \OneSite\Notify\Services\Common\Notify::STATUS_PROCESSING,
-            \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS
-        ])) {
-            return response()->json([
-                'error' => 'Notification is approved.'
             ]);
         }
 

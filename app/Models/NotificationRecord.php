@@ -27,6 +27,7 @@ class NotificationRecord extends Model
         'user_id',
         'status',
         'is_read',
+        'meta_data',
     ];
 
     /**

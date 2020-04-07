@@ -24,6 +24,7 @@ class CreateNotificationRecordsTable extends Migration
             $table->integer('user_id')->nullable()->default(0);
             $table->string('status', 32)->nullable(); // PENDING | PROCESSING | SUCCESS
             $table->boolean('is_read')->default(0);
+            $table->text('meta_data')->nullable();
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
 

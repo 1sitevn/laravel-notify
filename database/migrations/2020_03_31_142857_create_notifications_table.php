@@ -26,6 +26,7 @@ class CreateNotificationsTable extends Migration
             $table->string('status', 32)->default(\OneSite\Notify\Services\Common\Notify::STATUS_PENDING); // PENDING | APPROVED | SUCCESS
             $table->string('action', 32)->nullable(); // LINK | TRANSACTION | PROFILE | USER_VERIFY
             $table->text('content')->nullable(); // URL | PAYMENT ID | x | x
+            $table->text('send_data')->nullable();
             $table->string('creator_type', 32)->nullable();
             $table->integer('creator_id')->default(0);
             $table->integer('moderator_id')->default(0);

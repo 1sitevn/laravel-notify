@@ -70,16 +70,23 @@ class Notify
 
             Route::group(['middleware' => $options['middleware']], function () {
                 Route::post('device', 'Device@store');
+
+                Route::get('', 'Notify@index');
+                Route::post('{nid}/read', 'Notify@read');
+                Route::get('{nid}', 'Notify@show');
+                Route::post('read-all', 'Notify@readAll');
+                Route::delete('{nid}', 'Notify@destroy');
             });
         });
 
         Route::group(['prefix' => $options['admin_prefix']], function () use ($options) {
             Route::group(['middleware' => $options['admin_middleware']], function () {
-                Route::get('{id}', 'Admin\Notify@show');
+                Route::get('', 'Admin\Notify@index');
+                Route::get('{nid}', 'Admin\Notify@show');
                 Route::post('', 'Admin\Notify@store');
-                Route::post('{id}', 'Admin\Notify@update');
-                Route::post('{id}/approve', 'Admin\Notify@approve');
-                Route::delete('{id}', 'Admin\Notify@destroy');
+                Route::post('{nid}', 'Admin\Notify@update');
+                Route::post('{nid}/approve', 'Admin\Notify@approve');
+                Route::delete('{nid}', 'Admin\Notify@destroy');
             });
         });
     }

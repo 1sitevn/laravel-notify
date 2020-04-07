@@ -11,6 +11,7 @@ namespace OneSite\Notify\Listeners;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use OneSite\Notify\Models\NotificationDevice;
+use OneSite\Notify\Services\Common\HashID;
 use OneSite\Notify\Services\Common\Notify;
 use OneSite\Notify\Services\Contract\Notification;
 
@@ -45,26 +46,28 @@ class SendNotifyRecord implements ShouldQueue
         ]);
 
         $notificationService = app()->make(Notification::class);
+
+        $sendData = (array)json_decode($notification->send_data);
+        $sendData = array_merge([
+            'id' => HashID::idEncode($notificationRecord->id)
+        ], $sendData);
+
         $sendInfo = $notificationService->send($notificationDevice->token, [
-            'notification' => [
-                'id' => $notificationRecord->id,
-                'title' => $notification->title,
-                'description' => $notification->description,
-                'action' => $notification->action,
-                'content' => $notification->content
-            ]
+            'notification' => $sendData
         ]);
 
         if (!empty($sendInfo['error'])) {
             $notificationRecord->update([
-                'status' => Notify::STATUS_RECORD_FAIL
+                'status' => Notify::STATUS_RECORD_FAIL,
+                'meta_data' => json_encode($sendInfo)
             ]);
 
             return;
         }
 
         $notificationRecord->update([
-            'status' => Notify::STATUS_RECORD_SUCCESS
+            'status' => Notify::STATUS_RECORD_SUCCESS,
+            'meta_data' => json_encode($sendInfo)
         ]);
     }
 }

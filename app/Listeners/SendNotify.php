@@ -38,6 +38,7 @@ class SendNotify
             'receiver_id' => $userId,
             'action' => $data['action'],
             'content' => $data['content'],
+            'send_data' => json_encode($data['send_data']),
             'status' => Notify::STATUS_APPROVED,
             'creator_type' => Notify::CREATOR_TYPE_USER,
             'creator_id' => $userId,
@@ -55,7 +56,7 @@ class SendNotify
         $notificationRecord = NotificationRecord::query()->create([
             'notification_id' => $notification->id,
             'device_id' => $notificationDevice->id,
-            'user_id' => $notification->id,
+            'user_id' => $userId,
             'status' => Notify::STATUS_RECORD_PENDING,
             'is_read' => 0
         ]);

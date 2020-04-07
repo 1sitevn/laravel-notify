@@ -24,7 +24,7 @@ class Test extends Command
      *
      * @var string
      */
-    protected $signature = 'notify:test';
+    protected $signature = 'notify:test {--userId=}';
     /**
      * The console command description.
      *
@@ -39,13 +39,25 @@ class Test extends Command
     {
         $this->line('Notify test module command...');
 
-        $userId = 3;
+        $userId = $this->option('userId');
+        if (empty($userId)) {
+            return;
+        }
 
         $data = [
             'title' => 'Test notification',
             'description' => 'Test notification',
             'action' => 'LINK',
-            'content' => 'https://24h.com.vn',
+            'content' => 'https://test.com',
+            'send_data' => [
+                'title' => 'Test notification',
+                'description' => 'Test notification',
+                'type' => 'LINK',
+                'body' => 'https://test.com',
+                'data' => [
+                    'id' => 202004070001
+                ]
+            ]
         ];
 
         event(new SendNotify($userId, $data));

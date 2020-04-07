@@ -3,6 +3,7 @@
 namespace OneSite\Notify\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use OneSite\Notify\Services\Common\HashID;
 
 /**
  * Class NotificationResource
@@ -19,17 +20,17 @@ class NotificationResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => HashID::idEncode($this->id),
             'title' => !empty($this->title) ? $this->title : '',
             'description' => !empty($this->description) ? $this->description : '',
             'receiver_type' => !empty($this->receiver_type) ? $this->receiver_type : '',
-            'receiver_id' => !empty($this->receiver_id) ? $this->receiver_id : 0,
+            'receiver_id' => !empty($this->receiver_id) ? HashID::idEncode($this->receiver_id) : null,
             'status' => !empty($this->status) ? $this->status : '',
             'action' => !empty($this->action) ? $this->action : '',
             'content' => !empty($this->content) ? $this->content : '',
             'creator_type' => !empty($this->creator_type) ? $this->creator_type : '',
-            'creator_id' => !empty($this->creator_id) ? $this->creator_id : 0,
-            'moderator_id' => !empty($this->moderator_id) ? $this->moderator_id : 0,
+            'creator_id' => !empty($this->creator_id) ? HashID::idEncode($this->creator_id) : null,
+            'moderator_id' => !empty($this->moderator_id) ? HashID::idEncode($this->moderator_id) : null,
             'created_at' => !empty($this->created_at) ? $this->created_at : '',
             'updated_at' => !empty($this->updated_at) ? $this->updated_at : ''
         ];

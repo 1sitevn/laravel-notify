@@ -29,6 +29,7 @@ class Notification extends Model
         'status',
         'action',
         'content',
+        'send_data',
         'creator_type',
         'creator_id',
         'moderator_id',

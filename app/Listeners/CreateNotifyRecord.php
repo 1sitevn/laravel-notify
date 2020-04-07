@@ -97,12 +97,14 @@ class CreateNotifyRecord
             $this->log->warning('Create notify member records: not found device token', [
                 'notification' => $notification
             ]);
+
+            return;
         }
 
         $notificationRecord = NotificationRecord::query()->create([
             'notification_id' => $notification->id,
             'device_id' => $notificationDevice->id,
-            'user_id' => $notification->id,
+            'user_id' => $notificationDevice->user_id,
             'status' => Notify::STATUS_RECORD_PENDING,
             'is_read' => 0
         ]);

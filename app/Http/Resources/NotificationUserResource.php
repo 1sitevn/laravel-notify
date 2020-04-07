@@ -3,16 +3,19 @@
 namespace OneSite\Notify\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use OneSite\Notify\Models\Notification;
 use OneSite\Notify\Services\Common\HashID;
 
+
 /**
- * Class NotificationRecordResource
+ * Class NotificationUserResource
  * @package OneSite\Notify\Http\Resources
  */
-class NotificationRecordResource extends JsonResource
+class NotificationUserResource extends JsonResource
 {
-
     /**
+     * Transform the resource into an array.
+     *
      * @param \Illuminate\Http\Request $request
      * @return array
      */
@@ -20,9 +23,11 @@ class NotificationRecordResource extends JsonResource
     {
         return [
             'id' => HashID::idEncode($this->id),
-            'notification_id' => !empty($this->notification_id) ? HashID::idEncode($this->notification_id) : null,
-            'device_id' => !empty($this->device_id) ? HashID::idEncode($this->device_id) : null,
-            'status' => !empty($this->status) ? $this->status : '',
+            'title' => !empty($this->notification) ? $this->notification->title : '',
+            'description' => !empty($this->notification) ? $this->notification->description : '',
+            'type' => !empty($this->notification) ? $this->notification->action : '',
+            'content' => !empty($this->notification) ? $this->notification->content : '',
+            //'notification' => !empty($this->notification) ? $this->notification : null,
             'is_read' => !empty($this->is_read) ? $this->is_read : 0,
             'created_at' => !empty($this->created_at) ? $this->created_at : '',
             'updated_at' => !empty($this->updated_at) ? $this->updated_at : ''

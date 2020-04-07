@@ -16,6 +16,8 @@ use OneSite\Notify\Http\Controllers\Base;
 use OneSite\Notify\Http\Requests\StoreNotifyRequest;
 use OneSite\Notify\Http\Resources\NotificationResource;
 use OneSite\Notify\Models\Notification;
+use OneSite\Notify\Services\Common\HashID;
+use OneSite\Notify\Services\Common\Paginate;
 
 /**
  * Class Notify
@@ -23,6 +25,25 @@ use OneSite\Notify\Models\Notification;
  */
 class Notify extends Base
 {
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request)
+    {
+        $perPage = !empty($request->per_page) ? $request->per_page : 25;
+
+        $notifications = Notification::query()
+            ->orderBy('created_at', 'desc');
+
+        $notifications = $notifications->paginate($perPage);
+
+        return response()->json([
+            'notifications' => NotificationResource::collection($notifications),
+            'meta_data' => Paginate::getMetaData($notifications)
+        ]);
+    }
 
     /**
      * @param StoreNotifyRequest $request
