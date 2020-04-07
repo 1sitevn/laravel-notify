@@ -25,6 +25,19 @@ use OneSite\Notify\Services\Common\Paginate;
  */
 class Notify extends Base
 {
+    /**
+     * @var NotificationUserResource $notificationUserResource
+     */
+    private $notificationUserResource;
+
+    /**
+     * Notify constructor.
+     */
+    public function __construct()
+    {
+        $this->notificationUserResource = config('notification.class.notification_user_resource', NotificationUserResource::class);
+    }
+
 
     /**
      * @param Request $request
@@ -44,7 +57,7 @@ class Notify extends Base
         $notifications = $notifications->paginate($perPage);
 
         return response()->json([
-            'notifications' => NotificationUserResource::collection($notifications),
+            'notifications' => $this->notificationUserResource::collection($notifications),
             'meta_data' => Paginate::getMetaData($notifications)
         ]);
     }
@@ -70,7 +83,7 @@ class Notify extends Base
         }
 
         return response()->json([
-            'notification' => new NotificationUserResource($notification)
+            'notification' => new $this->notificationUserResource($notification)
         ]);
     }
 
@@ -99,7 +112,7 @@ class Notify extends Base
         $notification->save();
 
         return response()->json([
-            'notification' => new NotificationUserResource($notification)
+            'notification' => new $this->notificationUserResource($notification)
         ]);
     }
 

@@ -60,15 +60,16 @@ class Notify extends Base
             'receiver_id',
             'action',
             'content',
+            'send_data',
         ]);
 
         $attributes['creator_type'] = !empty($request->creator_type) ? $request->creator_type : \OneSite\Notify\Services\Common\Notify::CREATOR_TYPE_USER;
         $attributes['creator_id'] = $user->id;
 
-        $notification = event(new CreateNotify($attributes));
+        $notification = \OneSite\Notify\Models\Notification::query()->create($attributes);
 
         return response()->json([
-            'notification' => $notification
+            'notification' => new NotificationResource($notification)
         ]);
     }
 

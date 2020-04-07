@@ -25,9 +25,6 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        CreateNotify::class => [
-            \OneSite\Notify\Listeners\CreateNotify::class
-        ],
         CreateNotifyRecord::class => [
             \OneSite\Notify\Listeners\CreateNotifyRecord::class
         ],

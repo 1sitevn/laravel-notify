@@ -22,12 +22,19 @@ return [
         'admin_middleware' => ['auth:api']
     ],
 
-    'test' => [
-        'device' => 'xyz'
+    'class' => [
+        'notification_resource' => \OneSite\Notify\Http\Resources\NotificationResource::class,
+        'notification_record_resource' => \OneSite\Notify\Http\Resources\NotificationRecordResource::class,
+        'notification_user_resource' => \OneSite\Notify\Http\Resources\NotificationUserResource::class,
     ],
 
     'hash_id' => [
-        'salt' => env('HASHID_SALT', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
-        'alphabet' => env('HASHID_ALPHABET', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678'),
+        'salt' => env('NOTIFY_HASHID_SALT', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'),
+        'alphabet' => env('NOTIFY_HASHID_ALPHABET', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678'),
     ],
+
+    'test' => [
+        'device' => 'ekvYWW8fhxg:APA91bHdTnUzTOEQpU0Uh6PvzT9-REMosOq2NvjUaHkK9WoVKf-OO9cOSCUgW1oqWcCrnlwULhBAAtl1JqXk3jUAYdYkfYq4rkHM6wyV66S0IBJ14HtANQ3aVZBLzh4Z-8givFwXmxrG'
+    ],
+
 ];

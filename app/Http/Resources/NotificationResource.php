@@ -28,6 +28,7 @@ class NotificationResource extends JsonResource
             'status' => !empty($this->status) ? $this->status : '',
             'action' => !empty($this->action) ? $this->action : '',
             'content' => !empty($this->content) ? $this->content : '',
+            'send_data' => !empty($this->send_data) ? json_decode($this->send_data) : '',
             'creator_type' => !empty($this->creator_type) ? $this->creator_type : '',
             'creator_id' => !empty($this->creator_id) ? HashID::idEncode($this->creator_id) : null,
             'moderator_id' => !empty($this->moderator_id) ? HashID::idEncode($this->moderator_id) : null,

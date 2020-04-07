@@ -25,7 +25,7 @@ class NotificationUserResource extends JsonResource
             'id' => HashID::idEncode($this->id),
             'title' => !empty($this->notification) ? $this->notification->title : '',
             'description' => !empty($this->notification) ? $this->notification->description : '',
-            'type' => !empty($this->notification) ? $this->notification->action : '',
+            'action' => !empty($this->notification) ? $this->notification->action : '',
             'content' => !empty($this->notification) ? $this->notification->content : '',
             //'notification' => !empty($this->notification) ? $this->notification : null,
             'is_read' => !empty($this->is_read) ? $this->is_read : 0,
