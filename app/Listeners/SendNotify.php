@@ -48,23 +48,24 @@ class SendNotify
             return;
         }
 
-        $notificationDevice = NotificationDevice::query()->where('user_id', $userId)->first();
-        if (!$notificationDevice instanceof NotificationDevice) {
-            return;
+        $notificationDeviceId = 0;
+        $notificationDevice = NotificationDevice::query()
+            ->where('user_id', $userId)
+            ->first();
+        if ($notificationDevice instanceof NotificationDevice) {
+            $notificationDeviceId = $notificationDevice->id;
         }
 
         $notificationRecord = NotificationRecord::query()->create([
             'notification_id' => $notification->id,
-            'device_id' => $notificationDevice->id,
+            'device_id' => $notificationDeviceId,
             'user_id' => $userId,
             'status' => Notify::STATUS_RECORD_PENDING,
             'is_read' => 0
         ]);
-
-        if (!$notificationRecord instanceof NotificationRecord) {
-            return;
+        
+        if ($notificationRecord instanceof NotificationRecord && $notificationDevice instanceof NotificationDevice) {
+            event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
         }
-
-        event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
     }
 }
