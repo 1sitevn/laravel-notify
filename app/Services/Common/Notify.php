@@ -63,7 +63,7 @@ class Notify
             'admin_middleware' => ['auth:api']
         ];
 
-        $options = array_merge($defaultOptions, config('notification.route'));
+        $options = array_merge($defaultOptions, config('notification.route', []));
 
         Route::group(['prefix' => $options['prefix']], function () use ($options) {
             Route::get('health', 'Test@index');
