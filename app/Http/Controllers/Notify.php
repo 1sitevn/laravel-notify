@@ -51,7 +51,7 @@ class Notify extends Base
 
         $notifications = NotificationRecord::query()
             ->where('user_id', $user->id)
-            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->orderBy('created_at', 'desc');
 
         $notifications = $notifications->paginate($perPage);
@@ -73,7 +73,7 @@ class Notify extends Base
 
         $notification = NotificationRecord::query()
             ->where('user_id', $user->id)
-            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
 
         if (!$notification instanceof NotificationRecord) {
@@ -99,7 +99,7 @@ class Notify extends Base
 
         $notification = NotificationRecord::query()
             ->where('user_id', $user->id)
-            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
 
         if (!$notification instanceof NotificationRecord) {
@@ -146,7 +146,7 @@ class Notify extends Base
 
         $notification = NotificationRecord::query()
             ->where('user_id', $user->id)
-            ->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
+            //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
 
         if (!$notification instanceof NotificationRecord) {
