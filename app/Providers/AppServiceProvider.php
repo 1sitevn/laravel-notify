@@ -81,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../../database/migrations' => database_path('migrations'),
-            __DIR__ . '/../../database/seeds' => database_path('seeds')
+            //__DIR__ . '/../../database/seeds' => database_path('seeds')
         ], 'notify-migrations');
 
         $this->publishes([
