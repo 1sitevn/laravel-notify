@@ -18,7 +18,6 @@ use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Models\Notification;
 use OneSite\Notify\Models\NotificationRecord;
 use OneSite\Notify\Services\Common\Paginate;
-use OneSite\Notify\Services\Common\Response;
 
 /**
  * Class Notify
@@ -62,10 +61,12 @@ class Notify extends Base
             ->where('is_read', 0)
             ->count();
 
-        return Response::success([
-            'notifications' => $this->notificationUserResource::collection($notifications),
-            'total_not_read' => $totalNotRead,
-            'meta_data' => Paginate::getMetaData($notifications)
+        return response()->json([
+            'data' => [
+                'notifications' => $this->notificationUserResource::collection($notifications),
+                'total_not_read' => $totalNotRead,
+                'meta_data' => Paginate::getMetaData($notifications)
+            ]
         ]);
     }
 
@@ -85,11 +86,15 @@ class Notify extends Base
             ->first();
 
         if (!$notification instanceof NotificationRecord) {
-            return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
+            return response()->json([
+                'error' => 'Notification not found.'
+            ]);
         }
 
-        return Response::success([
-            'notification' => new $this->notificationUserResource($notification)
+        return response()->json([
+            'data' => [
+                'notification' => new $this->notificationUserResource($notification)
+            ]
         ]);
     }
 
@@ -104,20 +109,23 @@ class Notify extends Base
         $user = $request->user();
 
         $notification = NotificationRecord::query()
-            ->where('id', $id)
             ->where('user_id', $user->id)
             //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
 
         if (!$notification instanceof NotificationRecord) {
-            return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
+            return response()->json([
+                'error' => 'Notification not found.'
+            ]);
         }
 
         $notification->is_read = 1;
         $notification->save();
 
-        return Response::success([
-            'notification' => new $this->notificationUserResource($notification)
+        return response()->json([
+            'data' => [
+                'notification' => new $this->notificationUserResource($notification)
+            ]
         ]);
     }
 
@@ -135,7 +143,7 @@ class Notify extends Base
                 'is_read' => 1
             ]);
 
-        return Response::success();
+        return response()->json([]);
     }
 
 
@@ -150,17 +158,18 @@ class Notify extends Base
         $user = $request->user();
 
         $notification = NotificationRecord::query()
-            ->where('id', $id)
             ->where('user_id', $user->id)
             //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
 
         if (!$notification instanceof NotificationRecord) {
-            return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
+            return response()->json([
+                'error' => 'Notification not found.'
+            ]);
         }
 
         $notification->delete();
 
-        return Response::success();
+        return response()->json([]);
     }
 }

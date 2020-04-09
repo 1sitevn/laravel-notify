@@ -37,10 +37,4 @@ return [
         'device' => 'ekvYWW8fhxg:APA91bHdTnUzTOEQpU0Uh6PvzT9-REMosOq2NvjUaHkK9WoVKf-OO9cOSCUgW1oqWcCrnlwULhBAAtl1JqXk3jUAYdYkfYq4rkHM6wyV66S0IBJ14HtANQ3aVZBLzh4Z-8givFwXmxrG'
     ],
 
-    'error_code' => [
-        'notification_notfound' => 1000,
-        'notification_is_approved' => 1001,
-        'notification_is_not_approved' => 1002,
-    ]
-
 ];

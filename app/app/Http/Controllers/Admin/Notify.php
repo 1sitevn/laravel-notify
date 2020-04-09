@@ -19,7 +19,6 @@ use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Models\Notification;
 use OneSite\Notify\Services\Common\HashID;
 use OneSite\Notify\Services\Common\Paginate;
-use OneSite\Notify\Services\Common\Response;
 
 /**
  * Class Notify
@@ -54,7 +53,7 @@ class Notify extends Base
 
         $notifications = $notifications->paginate($perPage);
 
-        return Response::success([
+        return response()->json([
             'notifications' => $this->notificationResource::collection($notifications),
             'meta_data' => Paginate::getMetaData($notifications)
         ]);
@@ -83,7 +82,7 @@ class Notify extends Base
 
         $notification = \OneSite\Notify\Models\Notification::query()->create($attributes);
 
-        return Response::success([
+        return response()->json([
             'notification' => new $this->notificationResource($notification)
         ]);
     }
@@ -97,10 +96,12 @@ class Notify extends Base
         $notification = Notification::query()->where('id', $id)->first();
 
         if (!$notification instanceof Notification) {
-            return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
+            return response()->json([
+                'error' => 'Notification not found.'
+            ]);
         }
 
-        return Response::success([
+        return response()->json([
             'notification' => new $this->notificationResource($notification)
         ]);
     }
@@ -115,7 +116,9 @@ class Notify extends Base
         $notification = Notification::query()->where('id', $id)->first();
 
         if (!$notification instanceof Notification) {
-            return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
+            return response()->json([
+                'error' => 'Notification not found.'
+            ]);
         }
 
         if (in_array($notification->status, [
@@ -123,7 +126,9 @@ class Notify extends Base
             \OneSite\Notify\Services\Common\Notify::STATUS_PROCESSING,
             \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS
         ])) {
-            return Response::error(config('notification.error_code.notification_is_approved', 1000), 'Notification is approved.');
+            return response()->json([
+                'error' => 'Notification is approved.'
+            ]);
         }
 
         $attributes = $request->only([
@@ -137,7 +142,7 @@ class Notify extends Base
 
         $notification->update($attributes);
 
-        return Response::success([
+        return response()->json([
             'notification' => new $this->notificationResource($notification)
         ]);
     }
@@ -153,7 +158,9 @@ class Notify extends Base
         $notification = Notification::query()->where('id', $id)->first();
 
         if (!$notification instanceof Notification) {
-            return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
+            return response()->json([
+                'error' => 'Notification not found.'
+            ]);
         }
 
         if (in_array($notification->status, [
@@ -161,7 +168,9 @@ class Notify extends Base
             \OneSite\Notify\Services\Common\Notify::STATUS_PROCESSING,
             \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS
         ])) {
-            return Response::error(config('notification.error_code.notification_is_approved', 1000), 'Notification is approved.');
+            return response()->json([
+                'error' => 'Notification is approved.'
+            ]);
         }
 
         $user = $request->user();
@@ -169,12 +178,14 @@ class Notify extends Base
         $notification->moderator_id = $user->id;
         $notification->status = \OneSite\Notify\Services\Common\Notify::STATUS_APPROVED;
         if (!$notification->save()) {
-            return Response::error(config('notification.error_code.notification_is_not_approved', 1000), 'Notification is not approved.');
+            return response()->json([
+                'error' => 'Notification is not approved.'
+            ]);
         }
 
         event(new CreateNotifyRecord($notification));
 
-        return Response::success([
+        return response()->json([
             'notification' => new $this->notificationResource($notification)
         ]);
     }
@@ -189,7 +200,9 @@ class Notify extends Base
         $notification = Notification::query()->where('id', $id)->first();
 
         if (!$notification instanceof Notification) {
-            return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
+            return response()->json([
+                'error' => 'Notification not found.'
+            ]);
         }
 
         if (in_array($notification->status, [
@@ -197,11 +210,13 @@ class Notify extends Base
             \OneSite\Notify\Services\Common\Notify::STATUS_PROCESSING,
             \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS
         ])) {
-            return Response::error(config('notification.error_code.notification_is_approved', 1000), 'Notification is approved.');
+            return response()->json([
+                'error' => 'Notification is approved.'
+            ]);
         }
 
         $notification->delete();
 
-        return Response::success();
+        return response()->json([]);
     }
 }

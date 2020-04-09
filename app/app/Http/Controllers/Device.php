@@ -11,7 +11,6 @@ namespace OneSite\Notify\Http\Controllers;
 
 use OneSite\Notify\Http\Requests\StoreDeviceRequest;
 use OneSite\Notify\Models\NotificationDevice;
-use OneSite\Notify\Services\Common\Response;
 
 
 /**
@@ -55,7 +54,7 @@ class Device extends Base
             ]);
         }
 
-        return Response::success();
+        return response()->json([]);
     }
 
 }
