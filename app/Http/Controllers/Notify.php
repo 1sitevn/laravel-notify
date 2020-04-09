@@ -109,6 +109,7 @@ class Notify extends Base
         $user = $request->user();
 
         $notification = NotificationRecord::query()
+            ->where('id', $id)
             ->where('user_id', $user->id)
             //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
@@ -158,6 +159,7 @@ class Notify extends Base
         $user = $request->user();
 
         $notification = NotificationRecord::query()
+            ->where('id', $id)
             ->where('user_id', $user->id)
             //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
