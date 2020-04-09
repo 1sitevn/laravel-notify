@@ -3,6 +3,8 @@
 namespace OneSite\Notify\Services\Common;
 
 use Illuminate\Support\Facades\Route;
+use OneSite\Notify\Http\Resources\NotificationResource;
+use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Services\Contract\Notification;
 use OneSite\Notify\Services\Firebase;
 use OneSite\Notify\Services\Test;
@@ -49,6 +51,22 @@ class Notify
         return [
             Notification::class => Test::class
         ];
+    }
+
+    /**
+     * @return \Illuminate\Config\Repository|mixed
+     */
+    public static function getNotificationResource()
+    {
+        return config('notification.aliases.notification_resource', NotificationResource::class);
+    }
+
+    /**
+     * @return \Illuminate\Config\Repository|mixed
+     */
+    public static function getNotificationUserResource()
+    {
+        return config('notification.aliases.notification_user_resource', NotificationUserResource::class);
     }
 
     /**

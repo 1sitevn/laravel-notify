@@ -22,9 +22,8 @@ return [
         'admin_middleware' => ['auth:api']
     ],
 
-    'class' => [
+    'aliases' => [
         'notification_resource' => \OneSite\Notify\Http\Resources\NotificationResource::class,
-        'notification_record_resource' => \OneSite\Notify\Http\Resources\NotificationRecordResource::class,
         'notification_user_resource' => \OneSite\Notify\Http\Resources\NotificationUserResource::class,
     ],
 

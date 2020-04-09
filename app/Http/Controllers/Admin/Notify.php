@@ -38,7 +38,7 @@ class Notify extends Base
      */
     public function __construct()
     {
-        $this->notificationResource = config('notification.class.notification_resource', NotificationResource::class);
+        $this->notificationResource = \OneSite\Notify\Services\Common\Notify::getNotificationResource();
     }
 
     /**
