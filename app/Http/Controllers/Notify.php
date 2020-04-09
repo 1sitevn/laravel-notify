@@ -57,8 +57,10 @@ class Notify extends Base
         $notifications = $notifications->paginate($perPage);
 
         return response()->json([
-            'notifications' => $this->notificationUserResource::collection($notifications),
-            'meta_data' => Paginate::getMetaData($notifications)
+            'data' => [
+                'notifications' => $this->notificationUserResource::collection($notifications),
+                'meta_data' => Paginate::getMetaData($notifications)
+            ]
         ]);
     }
 
@@ -84,7 +86,9 @@ class Notify extends Base
         }
 
         return response()->json([
-            'notification' => new $this->notificationUserResource($notification)
+            'data' => [
+                'notification' => new $this->notificationUserResource($notification)
+            ]
         ]);
     }
 
@@ -113,7 +117,9 @@ class Notify extends Base
         $notification->save();
 
         return response()->json([
-            'notification' => new $this->notificationUserResource($notification)
+            'data' => [
+                'notification' => new $this->notificationUserResource($notification)
+            ]
         ]);
     }
 
