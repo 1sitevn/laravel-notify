@@ -56,9 +56,15 @@ class Notify extends Base
 
         $notifications = $notifications->paginate($perPage);
 
+        $totalNotRead = NotificationRecord::query()
+            ->where('user_id', $user->id)
+            ->where('is_read', 0)
+            ->count();
+
         return response()->json([
             'data' => [
                 'notifications' => $this->notificationUserResource::collection($notifications),
+                'total_not_read' => $totalNotRead,
                 'meta_data' => Paginate::getMetaData($notifications)
             ]
         ]);
