@@ -20,7 +20,7 @@ use OneSite\Notify\Services\Contract\Notification;
  * Class SendNotifyRecord
  * @package OneSite\Notify\Listeners
  */
-class SendNotifyRecord implements ShouldQueue
+class SendNotifyRecord
 {
 
     /**
@@ -33,11 +33,19 @@ class SendNotifyRecord implements ShouldQueue
 
         $notification = $notificationRecord->notification;
         if (!$notification instanceof \OneSite\Notify\Models\Notification) {
+            $notificationRecord->update([
+                'status' => Notify::STATUS_RECORD_NOTIFICATION_NOT_FOUND
+            ]);
+
             return;
         }
 
         $notificationDevice = $notificationRecord->device;
         if (!$notificationDevice instanceof NotificationDevice) {
+            $notificationRecord->update([
+                'status' => Notify::STATUS_RECORD_DEVICE_NOT_EXISTS
+            ]);
+
             return;
         }
 

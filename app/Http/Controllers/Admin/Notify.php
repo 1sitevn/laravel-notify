@@ -17,6 +17,7 @@ use OneSite\Notify\Http\Requests\StoreNotifyRequest;
 use OneSite\Notify\Http\Resources\NotificationResource;
 use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Models\Notification;
+use OneSite\Notify\Models\NotificationRecord;
 use OneSite\Notify\Services\Common\HashID;
 use OneSite\Notify\Services\Common\Paginate;
 use OneSite\Notify\Services\Common\Response;
@@ -78,6 +79,10 @@ class Notify extends Base
             'send_data',
         ]);
 
+        if ($attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_ALL) {
+            $attributes['receiver_id'] = 0;
+        }
+
         $attributes['creator_type'] = !empty($request->creator_type) ? $request->creator_type : \OneSite\Notify\Services\Common\Notify::CREATOR_TYPE_USER;
         $attributes['creator_id'] = $user->id;
 
@@ -133,7 +138,14 @@ class Notify extends Base
             'receiver_id',
             'action',
             'content',
+            'send_data',
         ]);
+
+        if ($attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_ALL) {
+            $attributes['receiver_id'] = 0;
+        } elseif ($attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_USER && !empty($attributes['receiver_id'])) {
+            $attributes['receiver_id'] = HashID::idDecode($attributes['receiver_id']);
+        }
 
         $notification->update($attributes);
 
@@ -166,9 +178,28 @@ class Notify extends Base
 
         $user = $request->user();
 
-        $notification->moderator_id = $user->id;
-        $notification->status = \OneSite\Notify\Services\Common\Notify::STATUS_APPROVED;
-        if (!$notification->save()) {
+        $attributes = $request->only([
+            'title',
+            'description',
+            'receiver_type',
+            'receiver_id',
+            'action',
+            'content',
+            'send_data',
+        ]);
+
+        if (!empty($attributes['receiver_type'])
+            && $attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_ALL) {
+            $attributes['receiver_id'] = 0;
+        } elseif (!empty($attributes['receiver_type'])
+            && $attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_USER
+            && !empty($attributes['receiver_id'])) {
+            $attributes['receiver_id'] = HashID::idDecode($attributes['receiver_id']);
+        }
+        $attributes['moderator_id'] = $user->id;
+        $attributes['status'] = \OneSite\Notify\Services\Common\Notify::STATUS_APPROVED;
+
+        if (!$notification->update($attributes)) {
             return Response::error(config('notification.error_code.notification_is_not_approved', 1000), 'Notification is not approved.');
         }
 
@@ -200,7 +231,9 @@ class Notify extends Base
             return Response::error(config('notification.error_code.notification_is_approved', 1000), 'Notification is approved.');
         }
 
-        $notification->delete();
+        if ($notification->delete()) {
+            NotificationRecord::query()->where('notification_id', $notification->id)->delete();
+        }
 
         return Response::success();
     }

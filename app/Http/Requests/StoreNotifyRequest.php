@@ -28,9 +28,9 @@ class StoreNotifyRequest extends Request
             'title' => 'required',
             'description' => 'required',
             'receiver_type' => 'required',
-            'receiver_id' => 'required',
+            //'receiver_id' => 'required',
             'action' => 'required',
-            'content' => 'required',
+            //'content' => 'required',
         ];
     }
 

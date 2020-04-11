@@ -10,6 +10,7 @@ namespace OneSite\Notify\Events;
 
 
 use App\Events\Event;
+use OneSite\Notify\Services\Notification;
 
 
 /**
@@ -22,20 +23,28 @@ class SendNotify extends Event
      * @var
      */
     private $userId;
+
     /**
-     * @var array
+     * @var Notification|null
      */
-    private $data = [];
+    private $data = null;
+
 
     /**
      * SendNotify constructor.
      * @param $userId
-     * @param array $data
+     * @param $data
+     * @throws \Exception
      */
-    public function __construct($userId, array $data = [])
+    public function __construct($userId, $data)
     {
         $this->userId = $userId;
-        $this->data = $data;
+
+        if ($data instanceof Notification || is_subclass_of($data, Notification::class)) {
+            $this->data = $data;
+        } else {
+            throw new \Exception("Notification info is not valid!");
+        }
     }
 
     /**
@@ -46,10 +55,11 @@ class SendNotify extends Event
         return $this->userId;
     }
 
+
     /**
-     * @return array
+     * @return Notification|null
      */
-    public function getData(): array
+    public function getData()
     {
         return $this->data;
     }

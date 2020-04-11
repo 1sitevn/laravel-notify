@@ -67,7 +67,12 @@ class CreateNotifyRecord
         ]);
 
         $query = "INSERT INTO notification_records (notification_id, device_id, user_id, `status`, is_read, created_at, updated_at)
-	                (SELECT :notification_id, nd.id, nd.user_id, 'PENDING', 0, NOW(), NOW() FROM notification_devices AS nd ORDER BY created_at DESC)";
+	                (
+                        SELECT :notification_id as notification_id, (SELECT id FROM notification_devices nd WHERE user_id = u.id) as device_id, u.id as user_id, 'PENDING' as `status`, 0 as is_read, NOW() as created_at, NOW() as updated_at
+                        FROM users AS u
+                        WHERE u.is_active = 1
+                        ORDER BY created_at DESC
+	                )";
 
         DB::insert($query, [
             'notification_id' => $notification->id
@@ -91,19 +96,16 @@ class CreateNotifyRecord
             'notification' => $notification
         ]);
 
+        $notificationDeviceId = 0;
         $notificationDevice = $this->getNotificationDevice($notification->receiver_id);
 
         if (!$notificationDevice instanceof NotificationDevice) {
-            $this->log->warning('Create notify member records: not found device token', [
-                'notification' => $notification
-            ]);
-
-            return;
+            $notificationDeviceId = $notificationDevice->id;
         }
 
         $notificationRecord = NotificationRecord::query()->create([
             'notification_id' => $notification->id,
-            'device_id' => $notificationDevice->id,
+            'device_id' => $notificationDeviceId,
             'user_id' => $notificationDevice->user_id,
             'status' => Notify::STATUS_RECORD_PENDING,
             'is_read' => 0

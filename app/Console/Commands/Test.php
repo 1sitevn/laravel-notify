@@ -11,6 +11,7 @@ namespace OneSite\Notify\Console\Commands;
 
 use Illuminate\Console\Command;
 use OneSite\Notify\Events\SendNotify;
+use OneSite\Notify\Services\Notification;
 
 
 /**
@@ -44,22 +45,17 @@ class Test extends Command
             return;
         }
 
-        $data = [
-            'title' => 'Test notification',
-            'description' => 'Test notification',
-            'action' => 'LINK',
-            'content' => 'https://test.com',
-            'send_data' => [
-                'title' => 'Test notification',
-                'description' => 'Test notification',
-                'type' => 'LINK',
-                'body' => 'https://test.com',
-                'data' => [
-                    'id' => 202004070001
-                ]
-            ]
+        $title = 'Test notification';
+        $description = 'Test notification';
+        $action = 'link';
+        $content = [
+            'id' => 'zRrj7Yme'
         ];
+        $extraData = [
+            'test_id' => 123312
+        ];
+        $nofificationInfo = new Notification($title, $description, $action, $content, $extraData);
 
-        event(new SendNotify($userId, $data));
+        event(new SendNotify($userId, $nofificationInfo));
     }
 }

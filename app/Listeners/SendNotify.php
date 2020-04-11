@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use OneSite\Notify\Models\NotificationDevice;
 use OneSite\Notify\Models\NotificationRecord;
 use OneSite\Notify\Services\Common\Notify;
+use OneSite\Notify\Services\Notification;
 
 
 /**
@@ -29,16 +30,19 @@ class SendNotify
     public function handle(\OneSite\Notify\Events\SendNotify $event)
     {
         $userId = $event->getUserId();
+        /**
+         * @var Notification $data
+         */
         $data = $event->getData();
 
         $notification = \OneSite\Notify\Models\Notification::query()->create([
-            'title' => $data['title'],
-            'description' => $data['description'],
+            'title' => $data->getTitle(),
+            'description' => $data->getDescription(),
             'receiver_type' => Notify::RECEIVER_TYPE_USER,
             'receiver_id' => $userId,
-            'action' => $data['action'],
-            'content' => $data['content'],
-            'send_data' => json_encode($data['send_data']),
+            'action' => $data->getAction(),
+            'content' => json_encode($data->getContent()),
+            'send_data' => json_encode($data->getSendData()),
             'status' => Notify::STATUS_APPROVED,
             'creator_type' => Notify::CREATOR_TYPE_USER,
             'creator_id' => $userId,
@@ -63,7 +67,7 @@ class SendNotify
             'status' => Notify::STATUS_RECORD_PENDING,
             'is_read' => 0
         ]);
-        
+
         if ($notificationRecord instanceof NotificationRecord && $notificationDevice instanceof NotificationDevice) {
             event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
         }
