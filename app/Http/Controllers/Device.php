@@ -49,9 +49,11 @@ class Device extends Base
                 ->orWhere('token', $request->token)
                 ->delete();
 
+            $platform = strtolower($request->header('Platform'));
             NotificationDevice::query()->create([
                 'user_id' => $user->id,
-                'token' => $request->token
+                'token' => $request->token,
+                'platform' => $platform,
             ]);
         }
 

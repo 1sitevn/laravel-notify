@@ -23,7 +23,11 @@ return [
     ],
 
     'aliases' => [
+        'user_model' => \App\Models\User::class,
+        'notification_info' => \OneSite\Notify\Services\Notification::class,
         'notification_resource' => \OneSite\Notify\Http\Resources\NotificationResource::class,
+        'notification_record_resource' => \OneSite\Notify\Http\Resources\NotificationRecordResource::class,
+        'notification_device_resource' => \OneSite\Notify\Http\Resources\NotificationDeviceResource::class,
         'notification_user_resource' => \OneSite\Notify\Http\Resources\NotificationUserResource::class,
     ],
 
@@ -40,6 +44,24 @@ return [
         'notification_notfound' => 1000,
         'notification_is_approved' => 1001,
         'notification_is_not_approved' => 1002,
-    ]
+    ],
 
+    'types' => [
+        'account_register' => [
+            'id' => 'account_register',
+            'name' => 'Đăng ký tài khoản thành công'
+        ],
+        'account_verified_ok' => [
+            'id' => 'account_verified_ok',
+            'name' => 'Xác thực tài khoản thành công'
+        ],
+        'account_not_verified' => [
+            'id' => 'account_not_verified',
+            'name' => 'Tài khoản chưa xác thực'
+        ],
+        'account_verified_email_ok' => [
+            'id' => 'account_verified_email_ok',
+            'name' => 'Xác thực email thành công'
+        ],
+    ]
 ];

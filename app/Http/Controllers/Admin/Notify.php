@@ -17,6 +17,7 @@ use OneSite\Notify\Http\Requests\StoreNotifyRequest;
 use OneSite\Notify\Http\Resources\NotificationResource;
 use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Models\Notification;
+use OneSite\Notify\Models\NotificationDevice;
 use OneSite\Notify\Models\NotificationRecord;
 use OneSite\Notify\Services\Common\HashID;
 use OneSite\Notify\Services\Common\Paginate;
@@ -33,6 +34,14 @@ class Notify extends Base
      * @var NotificationResource $notificationResource
      */
     private $notificationResource;
+    /**
+     * @var \Illuminate\Config\Repository|mixed
+     */
+    private $notificationRecordResource;
+    /**
+     * @var \Illuminate\Config\Repository|mixed
+     */
+    private $notificationDeviceResource;
 
     /**
      * Notify constructor.
@@ -40,6 +49,8 @@ class Notify extends Base
     public function __construct()
     {
         $this->notificationResource = \OneSite\Notify\Services\Common\Notify::getNotificationResource();
+        $this->notificationRecordResource = \OneSite\Notify\Services\Common\Notify::getNotificationRecordResource();
+        $this->notificationDeviceResource = \OneSite\Notify\Services\Common\Notify::getNotificationDeviceResource();
     }
 
     /**
@@ -62,6 +73,59 @@ class Notify extends Base
     }
 
     /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function records(Request $request, $id)
+    {
+        $perPage = !empty($request->per_page) ? $request->per_page : 25;
+
+        $notifications = NotificationRecord::query()
+            ->with(['device'])
+            ->where('notification_id', $id)
+            ->orderBy('created_at', 'desc');
+
+        $notifications = $notifications->paginate($perPage);
+
+        return Response::success([
+            'notification_records' => $this->notificationRecordResource::collection($notifications),
+            'meta_data' => Paginate::getMetaData($notifications)
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function devices(Request $request)
+    {
+        $perPage = !empty($request->per_page) ? $request->per_page : 25;
+
+        $notificationDevices = NotificationDevice::query()
+            ->orderBy('created_at', 'desc');
+
+        if (!empty($request->token)) {
+            $notificationDevices->where('token', $request->token);
+        }
+
+        if (!empty($request->platform)) {
+            $notificationDevices->where('platform', $request->platform);
+        }
+
+        if (!empty($request->user_id)) {
+            $notificationDevices->where('user_id', $request->user_id);
+        }
+
+        $notificationDevices = $notificationDevices->paginate($perPage);
+
+        return Response::success([
+            'notification_devices' => $this->notificationDeviceResource::collection($notificationDevices),
+            'meta_data' => Paginate::getMetaData($notificationDevices)
+        ]);
+    }
+
+    /**
      * @param StoreNotifyRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -79,8 +143,13 @@ class Notify extends Base
             'send_data',
         ]);
 
-        if ($attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_ALL) {
+        if (!empty($attributes['receiver_type'])
+            && $attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_ALL) {
             $attributes['receiver_id'] = 0;
+        } elseif (!empty($attributes['receiver_type'])
+            && $attributes['receiver_type'] == \OneSite\Notify\Services\Common\Notify::RECEIVER_TYPE_USER
+            && !empty($attributes['receiver_id'])) {
+            $attributes['receiver_id'] = HashID::idDecode($attributes['receiver_id']);
         }
 
         $attributes['creator_type'] = !empty($request->creator_type) ? $request->creator_type : \OneSite\Notify\Services\Common\Notify::CREATOR_TYPE_USER;
@@ -202,6 +271,18 @@ class Notify extends Base
         if (!$notification->update($attributes)) {
             return Response::error(config('notification.error_code.notification_is_not_approved', 1000), 'Notification is not approved.');
         }
+
+        $notificationInfoClass = \OneSite\Notify\Services\Common\Notify::getNotificationInfo();
+        /**
+         * @var \OneSite\Notify\Services\Notification $notificationInfo
+         */
+        $notificationInfo = new $notificationInfoClass(
+            $notification->title,
+            $notification->description,
+            $notification->action
+        );
+        $notification->send_data = $notificationInfo->getSendData();
+        $notification->save();
 
         event(new CreateNotifyRecord($notification));
 

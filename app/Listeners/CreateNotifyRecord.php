@@ -98,8 +98,7 @@ class CreateNotifyRecord
 
         $notificationDeviceId = 0;
         $notificationDevice = $this->getNotificationDevice($notification->receiver_id);
-
-        if (!$notificationDevice instanceof NotificationDevice) {
+        if ($notificationDevice instanceof NotificationDevice) {
             $notificationDeviceId = $notificationDevice->id;
         }
 

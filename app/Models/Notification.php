@@ -35,4 +35,11 @@ class Notification extends Model
         'moderator_id',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function receiver()
+    {
+        return $this->belongsTo(config('notification.aliases.user_model'), 'receiver_id');
+    }
 }

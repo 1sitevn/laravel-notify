@@ -3,6 +3,8 @@
 namespace OneSite\Notify\Services\Common;
 
 use Illuminate\Support\Facades\Route;
+use OneSite\Notify\Http\Resources\NotificationDeviceResource;
+use OneSite\Notify\Http\Resources\NotificationRecordResource;
 use OneSite\Notify\Http\Resources\NotificationResource;
 use OneSite\Notify\Http\Resources\NotificationUserResource;
 use OneSite\Notify\Services\Contract\Notification;
@@ -66,6 +68,30 @@ class Notify
     /**
      * @return \Illuminate\Config\Repository|mixed
      */
+    public static function getNotificationInfo()
+    {
+        return config('notification.aliases.notification_info', \OneSite\Notify\Services\Notification::class);
+    }
+
+    /**
+     * @return \Illuminate\Config\Repository|mixed
+     */
+    public static function getNotificationRecordResource()
+    {
+        return config('notification.aliases.notification_record_resource', NotificationRecordResource::class);
+    }
+
+    /**
+     * @return \Illuminate\Config\Repository|mixed
+     */
+    public static function getNotificationDeviceResource()
+    {
+        return config('notification.aliases.notification_device_resource', NotificationDeviceResource::class);
+    }
+
+    /**
+     * @return \Illuminate\Config\Repository|mixed
+     */
     public static function getNotificationUserResource()
     {
         return config('notification.aliases.notification_user_resource', NotificationUserResource::class);
@@ -102,9 +128,11 @@ class Notify
         Route::group(['prefix' => $options['admin_prefix']], function () use ($options) {
             Route::group(['middleware' => $options['admin_middleware']], function () {
                 Route::get('', 'Admin\Notify@index');
+                Route::get('devices', 'Admin\Notify@devices');
                 Route::get('{nid}', 'Admin\Notify@show');
                 Route::post('', 'Admin\Notify@store');
                 Route::post('{nid}', 'Admin\Notify@update');
+                Route::get('{nid}/records', 'Admin\Notify@records');
                 Route::post('{nid}/approve', 'Admin\Notify@approve');
                 Route::delete('{nid}', 'Admin\Notify@destroy');
             });

@@ -20,7 +20,7 @@ use OneSite\Notify\Services\Contract\Notification;
  * Class SendNotifyRecord
  * @package OneSite\Notify\Listeners
  */
-class SendNotifyRecord
+class SendNotifyRecord implements ShouldQueue
 {
 
     /**
