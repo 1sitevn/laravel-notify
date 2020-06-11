@@ -39,7 +39,9 @@ class Firebase implements Notification
 
         $params = [
             'priority' => 'HIGH',
-            'data' => $data,
+            //'data' => $data,
+            'data' => $data['notification'],
+            'notification' => $data['notification'],
             'to' => $to
         ];
 
