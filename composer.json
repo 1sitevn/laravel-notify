@@ -1,11 +1,16 @@
 {
     "name": "onesite/notify",
-    "description": "Send notification v2.0.0",
+    "description": "Send notification v3.0.0",
     "license": "MIT",
     "authors": [
         {
             "name": "1Site.vn",
             "email": "hotro@1site.vn",
+            "role": "Developer"
+        },
+        {
+            "name": "haipham22",
+            "email": "contact@haipham.net",
             "role": "Developer"
         }
     ],

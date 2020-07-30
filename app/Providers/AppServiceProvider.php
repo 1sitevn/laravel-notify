@@ -9,7 +9,7 @@
 namespace OneSite\Notify\Providers;
 
 
-use App\Services\Common\HashID;
+use OneSite\Notify\Services\Common\HashID;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use OneSite\Notify\Console\Commands\Test;
