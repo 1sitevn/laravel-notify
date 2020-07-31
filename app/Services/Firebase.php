@@ -36,6 +36,10 @@ class Firebase implements Notification
             "Authorization: key=" . config('notification.fcm.api_key'),
             "Content-Type: application/json"
         ];
+        
+        if (isset($data['notification']['id'])) {
+            $data['content'] = $data['notification']['id'];
+        }
 
         $params = [
             'priority' => 'HIGH',
@@ -44,7 +48,7 @@ class Firebase implements Notification
             'notification' => $data['notification'],
             'to' => $to
         ];
-
+        
         $log->info($to, [
             'Url' => $url,
             'Headers' => $headers,
