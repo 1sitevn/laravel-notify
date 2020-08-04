@@ -58,6 +58,7 @@ class SendNotifyRecord implements ShouldQueue
         $sendData = (array)json_decode($notification->send_data);
         $sendData = array_merge([
             'id' => HashID::idEncode($notificationRecord->id)
+            'body' => $notification->description,
         ], $sendData);
 
         $sendInfo = $notificationService->send($notificationDevice->token, [
