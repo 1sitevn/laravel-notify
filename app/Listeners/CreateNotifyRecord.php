@@ -50,10 +50,45 @@ class CreateNotifyRecord
                 $this->createRecordsByAll($notification);
 
                 break;
+            case Notify::RECEIVER_TYPE_GROUP:
+                $this->createRecordsByGroup($notification);
+    
+                break;
             case Notify::RECEIVER_TYPE_USER:
                 $this->createRecordsByUser($notification);
 
                 break;
+        }
+    }
+
+    /**
+     * @param Notification $notification
+     */
+    private function createRecordsByGroup(Notification $notification)
+    {
+        $this->log->info('Create notify admin records:', [
+            'notification' => $notification
+        ]);
+
+        $query = "INSERT INTO notification_records (notification_id, device_id, user_id, `status`, is_read, created_at, updated_at)
+	                (
+                        SELECT :notification_id as notification_id, (SELECT id FROM notification_devices nd WHERE user_id = u.id) as device_id, u.id as user_id, 'PENDING' as `status`, 0 as is_read, NOW() as created_at, NOW() as updated_at
+                        FROM users AS u
+                        WHERE u.is_active = 1 AND id in :user_ids
+                        ORDER BY created_at DESC
+	                )";
+
+        DB::insert($query, [
+            'notification_id' => $notification->id,
+            'user_ids' => $notification->receiver_id
+        ]);
+
+        $notificationRecords = NotificationRecord::query()
+            ->where('notification_id', $notification->id)
+            ->where('status', Notify::STATUS_RECORD_PENDING)
+            ->get();
+        foreach ($notificationRecords as $notificationRecord) {
+            event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
         }
     }
 
