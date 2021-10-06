@@ -9,7 +9,6 @@
 namespace OneSite\Notify\Listeners;
 
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OneSite\Notify\Models\Notification;
