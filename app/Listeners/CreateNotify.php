@@ -9,7 +9,6 @@
 namespace OneSite\Notify\Listeners;
 
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use OneSite\Notify\Http\Resources\NotificationResource;
 
 

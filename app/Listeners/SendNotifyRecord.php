@@ -23,6 +23,7 @@ use OneSite\Notify\Services\Contract\Notification;
 class SendNotifyRecord implements ShouldQueue
 {
 
+    public $afterCommit = true;
     /**
      * @param \OneSite\Notify\Events\SendNotifyRecord $event
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
