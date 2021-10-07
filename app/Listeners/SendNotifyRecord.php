@@ -8,6 +8,7 @@
 
 namespace OneSite\Notify\Listeners;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use OneSite\Notify\Models\NotificationDevice;
@@ -22,6 +23,7 @@ use OneSite\Notify\Services\Contract\Notification;
  */
 class SendNotifyRecord implements ShouldQueue
 {
+    use Queueable;
 
     public $afterCommit = true;
 
@@ -34,7 +36,7 @@ class SendNotifyRecord implements ShouldQueue
     public function __construct(\OneSite\Notify\Events\SendNotifyRecord $event)
     {
         $this->notifyRecord = $event;
-//        $this->delay(2);
+        $this->delay(10);
     }
 
     /**
