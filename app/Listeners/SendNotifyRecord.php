@@ -34,7 +34,7 @@ class SendNotifyRecord implements ShouldQueue
     public function __construct(\OneSite\Notify\Events\SendNotifyRecord $event)
     {
         $this->notifyRecord = $event;
-        $this->delay(2);
+//        $this->delay(2);
     }
 
     /**
