@@ -24,13 +24,26 @@ class SendNotifyRecord implements ShouldQueue
 {
 
     public $afterCommit = true;
+
+    protected $notifyRecord;
+
+    /**
+     * Create a new job instance.
+     *
+     */
+    public function __construct(\OneSite\Notify\Events\SendNotifyRecord $event)
+    {
+        $this->notifyRecord = $event;
+        $this->delay(2);
+    }
+
     /**
      * @param \OneSite\Notify\Events\SendNotifyRecord $event
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    public function handle(\OneSite\Notify\Events\SendNotifyRecord $event)
+    public function handle()
     {
-        $notificationRecord = $event->getNotificationRecord();
+        $notificationRecord = $this->notifyRecord->getNotificationRecord();
 
         $notification = $notificationRecord->notification;
         if (!$notification instanceof \OneSite\Notify\Models\Notification) {
