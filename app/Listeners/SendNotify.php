@@ -68,6 +68,7 @@ class SendNotify
         ]);
 
         if ($notificationRecord instanceof NotificationRecord && $notificationDevice instanceof NotificationDevice) {
+            sleep(2);
             event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
         }
     }
