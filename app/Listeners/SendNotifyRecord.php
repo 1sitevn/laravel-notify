@@ -23,11 +23,18 @@ use OneSite\Notify\Services\Contract\Notification;
  */
 class SendNotifyRecord implements ShouldQueue
 {
-    use Queueable;
+    use InteractsWithQueue, Queueable;
 
     public $afterCommit = true;
 
     protected $notifyRecord;
+
+    /**
+     * The time (seconds) before the job should be processed.
+     *
+     * @var int
+     */
+    public $delay = 10;
 
     /**
      * Create a new job instance.
