@@ -30,13 +30,6 @@ class SendNotifyRecord implements ShouldQueue
     protected $notifyRecord;
 
     /**
-     * The time (seconds) before the job should be processed.
-     *
-     * @var int
-     */
-    public $delay = 10;
-
-    /**
      * Create a new job instance.
      *
      */
