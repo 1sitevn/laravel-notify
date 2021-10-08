@@ -13,14 +13,36 @@ use OneSite\Notify\Models\NotificationDevice;
 use OneSite\Notify\Models\NotificationRecord;
 use OneSite\Notify\Services\Common\Notify;
 use OneSite\Notify\Services\Notification;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 
 /**
  * Class Test
  * @package OneSite\Notify\Listeners
  */
-class SendNotify
+class SendNotify implements ShouldQueue
 {
+    use InteractsWithQueue;
+
+    public $afterCommit = true;
+
+    /**
+     * The time (seconds) before the job should be processed.
+     *
+     * @var int
+     */
+    public $delay = 10;
+
+    private $log;
+
+    /**
+     * CreateNotifyRecord constructor.
+     */
+    public function __construct()
+    {
+        $this->log = Log::channel('notification');;
+    }
 
     /**
      * @param \OneSite\Notify\Events\SendNotify $event
@@ -66,9 +88,10 @@ class SendNotify
             'status' => Notify::STATUS_RECORD_PENDING,
             'is_read' => 0
         ]);
-
+        $this->log->info('Line 80 Create notify records:', [
+            'notificationRecord' => $notificationRecord
+        ]);
         if ($notificationRecord instanceof NotificationRecord && $notificationDevice instanceof NotificationDevice) {
-            sleep(2);
             event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
         }
     }
