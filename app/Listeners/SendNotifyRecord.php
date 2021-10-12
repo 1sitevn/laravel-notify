@@ -48,6 +48,10 @@ class SendNotifyRecord implements ShouldQueue
     {
         $this->notifyRecord = $event;
 
+        $this->log->info('Line 51 prepare send notify: ', [
+            'SendNotifyRecord' => $event
+        ]);
+
         $notificationRecord = $this->notifyRecord->getNotificationRecord();
 
         if (!$notificationRecord instanceof NotificationRecord) {
