@@ -28,13 +28,6 @@ class SendNotify implements ShouldQueue
 
     public $afterCommit = true;
 
-    /**
-     * The time (seconds) before the job should be processed.
-     *
-     * @var int
-     */
-    public $delay = 10;
-
     private $log;
 
     /**
@@ -43,6 +36,7 @@ class SendNotify implements ShouldQueue
     public function __construct()
     {
         $this->log = Log::channel('notification');
+        $this->delay(10);
     }
 
     /**
