@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use OneSite\Notify\Models\NotificationDevice;
+use OneSite\Notify\Models\NotificationRecord;
 use OneSite\Notify\Services\Common\HashID;
 use OneSite\Notify\Services\Common\Notify;
 use OneSite\Notify\Services\Contract\Notification;
@@ -30,26 +31,36 @@ class SendNotifyRecord implements ShouldQueue
 
     protected $notifyRecord;
 
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
     private $log;
 
     /**
      * Create a new job instance.
      *
      */
-    public function __construct(\OneSite\Notify\Events\SendNotifyRecord $event)
+    public function __construct()
     {
         $this->log = Log::channel('notification');
-        $this->notifyRecord = $event;
         $this->delay(10);
     }
 
 
-    public function handle()
+    public function handle(\OneSite\Notify\Events\SendNotifyRecord $event)
     {
+        $this->notifyRecord = $event;
+
+        $this->log->info('Line 51 prepare send notify: ', [
+            'SendNotifyRecord' => $event
+        ]);
+
         $notificationRecord = $this->notifyRecord->getNotificationRecord();
+
+        if (!$notificationRecord instanceof NotificationRecord) {
+            $notificationRecord->update([
+                'status' => Notify::STATUS_RECORD_NOTIFICATION_NOT_FOUND
+            ]);
+
+            return;
+        }
 
         $notification = $notificationRecord->notification;
         if (!$notification instanceof \OneSite\Notify\Models\Notification) {
@@ -81,7 +92,7 @@ class SendNotifyRecord implements ShouldQueue
             'body' => $notification->description,
         ], $sendData);
 
-        $this->log->info('Line 84 send notify: ', [
+        $this->log->info('Line 91 send notify: ', [
             'sendData' => $sendData
         ]);
 
