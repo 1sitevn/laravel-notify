@@ -8,6 +8,7 @@
 
 namespace OneSite\Notify\Listeners;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use OneSite\Notify\Models\NotificationDevice;
 use OneSite\Notify\Models\NotificationRecord;
@@ -23,7 +24,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
  */
 class SendNotify implements ShouldQueue
 {
-    use InteractsWithQueue;
+    use InteractsWithQueue, Queueable;
 
     public $afterCommit = true;
 
@@ -41,7 +42,7 @@ class SendNotify implements ShouldQueue
      */
     public function __construct()
     {
-        $this->log = Log::channel('notification');;
+        $this->log = Log::channel('notification');
     }
 
     /**
@@ -81,17 +82,21 @@ class SendNotify implements ShouldQueue
             $notificationDeviceId = $notificationDevice->id;
         }
 
-        $notificationRecord = NotificationRecord::query()->create([
+        $dataRecord = [
             'notification_id' => $notification->id,
             'device_id' => $notificationDeviceId,
             'user_id' => $userId,
             'status' => Notify::STATUS_RECORD_PENDING,
             'is_read' => 0
-        ]);
-        $this->log->info('Line 80 Create notify records:', [
-            'notificationRecord' => $notificationRecord
-        ]);
-        if ($notificationRecord instanceof NotificationRecord && $notificationDevice instanceof NotificationDevice) {
+        ];
+
+        $notificationRecord = new NotificationRecord();
+        $notificationRecord->fill($dataRecord);
+
+        if ($notificationRecord->save() && $notificationDevice instanceof NotificationDevice) {
+            $this->log->info('Line 97 Create notify records:', [
+                'notificationRecord' => $notificationRecord
+            ]);
             event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
         }
     }

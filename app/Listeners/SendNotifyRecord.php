@@ -11,6 +11,7 @@ namespace OneSite\Notify\Listeners;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 use OneSite\Notify\Models\NotificationDevice;
 use OneSite\Notify\Services\Common\HashID;
 use OneSite\Notify\Services\Common\Notify;
@@ -30,19 +31,22 @@ class SendNotifyRecord implements ShouldQueue
     protected $notifyRecord;
 
     /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $log;
+
+    /**
      * Create a new job instance.
      *
      */
     public function __construct(\OneSite\Notify\Events\SendNotifyRecord $event)
     {
+        $this->log = Log::channel('notification');
         $this->notifyRecord = $event;
         $this->delay(10);
     }
 
-    /**
-     * @param \OneSite\Notify\Events\SendNotifyRecord $event
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
-     */
+
     public function handle()
     {
         $notificationRecord = $this->notifyRecord->getNotificationRecord();
@@ -76,6 +80,10 @@ class SendNotifyRecord implements ShouldQueue
             'id' => HashID::idEncode($notificationRecord->id),
             'body' => $notification->description,
         ], $sendData);
+
+        $this->log->info('Line 84 send notify: ', [
+            'sendData' => $sendData
+        ]);
 
         $sendInfo = $notificationService->send($notificationDevice->token, [
             'notification' => $sendData
