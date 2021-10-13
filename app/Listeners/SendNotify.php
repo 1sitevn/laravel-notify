@@ -91,7 +91,7 @@ class SendNotify implements ShouldQueue
             $this->log->info('Line 97 Create notify records:', [
                 'notificationRecord' => $notificationRecord
             ]);
-            event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
+            event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord, $notificationRecord->id));
         }
     }
 }

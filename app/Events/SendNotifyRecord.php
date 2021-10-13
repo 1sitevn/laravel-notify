@@ -11,6 +11,9 @@ namespace OneSite\Notify\Events;
 
 use App\Events\Event;
 use OneSite\Notify\Models\NotificationRecord;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 
 
 /**
@@ -19,19 +22,22 @@ use OneSite\Notify\Models\NotificationRecord;
  */
 class SendNotifyRecord extends Event
 {
-
+    use Dispatchable, InteractsWithSockets, SerializesModels;
     /**
      * @var NotificationRecord
      */
+    public $id;
     private $notificationRecord;
 
     /**
-     * SendNotifyRecord constructor.
+     * * SendNotifyRecord constructor.
      * @param NotificationRecord $notificationRecord
+     * @param $id
      */
-    public function __construct(NotificationRecord $notificationRecord)
+    public function __construct(NotificationRecord $notificationRecord, $id = null)
     {
         $this->notificationRecord = $notificationRecord;
+        $this->id = $id;
     }
 
     /**
