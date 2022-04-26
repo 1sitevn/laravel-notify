@@ -87,7 +87,6 @@ class CreateNotifyRecord
             ->where('status', Notify::STATUS_RECORD_PENDING)
             ->get();
         foreach ($notificationRecords as $notificationRecord) {
-            sleep(2);
             event(new \OneSite\Notify\Events\SendNotifyRecord($notificationRecord));
         }
     }
