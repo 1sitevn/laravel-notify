@@ -43,10 +43,11 @@ class CreateNotifyRecord
     public function handle(\OneSite\Notify\Events\CreateNotifyRecord $event)
     {
         $notification = $event->getNotification();
+        $option       = $event->getOptions();
 
         switch ($notification->receiver_type) {
             case Notify::RECEIVER_TYPE_ALL:
-                $this->createRecordsByAll($notification);
+                $this->createRecordsByAll($notification, $option);
 
                 break;
             case Notify::RECEIVER_TYPE_GROUP:
@@ -95,11 +96,15 @@ class CreateNotifyRecord
     /**
      * @param Notification $notification
      */
-    private function createRecordsByAll(Notification $notification)
+    private function createRecordsByAll(Notification $notification, $option = [])
     {
         $this->log->info('Create notify admin records:', [
             'notification' => $notification
         ]);
+        $this->log->info('Log option:', [
+            'option' => $option
+        ]);
+        $limit = !empty($option['offset']) ? " limit {$option['offset']},5000" : '';
 
         $query = "INSERT INTO notification_records (notification_id, device_id, user_id, `status`, is_read, created_at, updated_at)
 	                (
@@ -107,6 +112,7 @@ class CreateNotifyRecord
                         FROM users AS u
                         WHERE u.is_active = 1
                         ORDER BY created_at DESC
+                        {$limit}
 	                )";
 
         DB::insert($query, [
