@@ -84,12 +84,16 @@ class Notify extends Base
             //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
             ->first();
 
-        $notificationV2 = NotificationRecord::query()
-            ->where('notification_id', $id)
-            ->where('user_id', $user->id)
-            ->first();
-
-        if ((!$notification instanceof NotificationRecord) && (!$notificationV2 instanceof NotificationRecord)) {
+        if (!$notification instanceof NotificationRecord) {
+            $notificationV2 = NotificationRecord::query()
+                ->where('notification_id', $id)
+                ->where('user_id', $user->id)
+                ->first();
+            if ($notificationV2 instanceof NotificationRecord) {
+                return Response::success([
+                    'notification' => new $this->notificationUserResource($notificationV2)
+                ]);
+            }
             return Response::error(config('notification.error_code.notification_notfound', 1000), 'Notification not found.');
         }
 
