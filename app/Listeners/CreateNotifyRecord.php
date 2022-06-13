@@ -51,7 +51,7 @@ class CreateNotifyRecord
 
                 break;
             case Notify::RECEIVER_TYPE_GROUP:
-                $this->createRecordsByGroup($notification);
+                $this->createRecordsByGroup($notification, $option);
     
                 break;
             case Notify::RECEIVER_TYPE_USER:
@@ -64,24 +64,34 @@ class CreateNotifyRecord
     /**
      * @param Notification $notification
      */
-    private function createRecordsByGroup(Notification $notification)
+    private function createRecordsByGroup(Notification $notification, $option = [])
     {
-        $this->log->info('Create notify admin records:', [
-            'notification' => $notification
-        ]);
+        $this->log->info('Create notify admin records:', ['notification' => $notification]);
+        $this->log->info('Log option:', ['option' => $option]);
 
-        $query = "INSERT INTO notification_records (notification_id, device_id, user_id, `status`, is_read, created_at, updated_at)
-	                (
-                        SELECT :notification_id as notification_id, (SELECT id FROM notification_devices nd WHERE user_id = u.id) as device_id, u.id as user_id, 'PENDING' as `status`, 0 as is_read, NOW() as created_at, NOW() as updated_at
-                        FROM users AS u
-                        WHERE u.is_active = 1 AND u.phone in (:user_phone)
-                        ORDER BY created_at DESC
-	                )";
-
-        DB::insert($query, [
-            'notification_id' => $notification->id,
-            'user_phone' => (string) $notification->receiver_id
-        ]);
+        if (!isset($option['user_ids'])) {
+            $this->log->error('SendNotifyByGroup: Không tìm thấy danh sách người dùng.');
+            return;
+        }
+        $userIds = $option['user_ids'];
+        $query   = "INSERT INTO notification_records (notification_id, device_id, user_id, `status`, is_read, created_at, updated_at)
+        (
+            SELECT
+                :notification_id AS notification_id,
+                nd.id as device_id,
+                u.id AS user_id,
+                'PENDING' AS `status`,
+                0 AS is_read,
+                NOW() AS created_at,
+                NOW() AS updated_at
+            FROM users AS u
+            LEFT JOIN notification_devices AS nd ON u.id = nd.id
+            WHERE u.is_active = 1
+            AND u.id IN ({$userIds})
+            ORDER BY created_at DESC
+            LIMIT 1000
+        )";
+        DB::insert($query, ['notification_id' => $notification->id]);
 
         $notificationRecords = NotificationRecord::query()
             ->where('notification_id', $notification->id)
