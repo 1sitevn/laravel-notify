@@ -85,7 +85,7 @@ class CreateNotifyRecord
                 NOW() AS created_at,
                 NOW() AS updated_at
             FROM users AS u
-            LEFT JOIN notification_devices AS nd ON u.id = nd.id
+            LEFT JOIN notification_devices AS nd ON u.id = nd.user_id
             WHERE u.is_active = 1
             AND u.id IN ({$userIds})
             ORDER BY created_at DESC
