@@ -53,7 +53,7 @@ class Notify extends Base
         $notifications = NotificationRecord::query()
             ->where('user_id', $user->id)
             //->where('status', \OneSite\Notify\Services\Common\Notify::STATUS_SUCCESS)
-            ->orderBy('created_at', 'desc');
+            ->orderBy('id', 'desc');
 
         $notifications = $notifications->paginate($perPage);
 
